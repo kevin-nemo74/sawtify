@@ -1,146 +1,223 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Non-Word Repetition Task',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(),
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
-  AudioPlayer audioPlayer = AudioPlayer();
-  FlutterSoundRecorder _recorder = FlutterSoundRecorder();
-  stt.SpeechToText _speech = stt.SpeechToText();
-  late String _tempPath;
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final String _audioPath = 'audio/sibad.wav'; // Corrected audio file path
+  final String _audioPath2 =
+      'assets/audio/sibad.wav'; // Corrected audio file path
+
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  FlutterSoundRecorder? _audioRecorder;
   bool _isRecording = false;
+  File? _recordedFile;
 
   @override
   void initState() {
     super.initState();
-    _initialize();
+    _audioRecorder = FlutterSoundRecorder();
+    _openRecorder();
   }
 
-  @override
-  void dispose() {
-    _recorder.closeRecorder();
-    super.dispose();
-  }
-
-  Future<void> _initialize() async {
-    // Request microphone permissions
+  Future<void> _openRecorder() async {
     var status = await Permission.microphone.request();
     if (status != PermissionStatus.granted) {
       throw RecordingPermissionException("Microphone permission not granted");
     }
+    await _audioRecorder!.openRecorder();
+  }
 
-    // Initialize the recorder
-    await _recorder.openRecorder();
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    _audioRecorder!.closeRecorder();
+    super.dispose();
+  }
 
-    // Prepare temporary file path
+  void _playAudio() async {
+    await _audioPlayer.play(
+      AssetSource(_audioPath),
+    );
+  }
+
+  void _record() async {
     Directory tempDir = await getTemporaryDirectory();
-    _tempPath = '${tempDir.path}/temp.wav';
-  }
-
-  Future<void> playAudio(Source audioPath) async {
-    final result = await audioPlayer.play(audioPath);
-  }
-
-  Future<void> startRecording() async {
-    if (!_recorder.isRecording) {
-      await _recorder.startRecorder(
-        toFile: _tempPath,
-        codec: Codec.pcm16WAV,
-      );
+    String filePath = '${tempDir.path}/recorded.wav';
+    if (_isRecording) {
+      await _audioRecorder!.stopRecorder();
+      setState(() {
+        _isRecording = false;
+        _recordedFile = File(filePath);
+      });
+    } else {
+      await _audioRecorder!.startRecorder(toFile: filePath);
       setState(() {
         _isRecording = true;
       });
     }
   }
 
-  Future<void> stopRecording() async {
-    if (_recorder.isRecording) {
-      await _recorder.stopRecorder();
-      setState(() {
-        _isRecording = false;
-      });
-      comparePronunciation(_tempPath);
+  Future<double> _compareAudio(File userAudio, File targetAudio) async {
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('http://172.20.64.9:5000/compare'));
+    request.files
+        .add(await http.MultipartFile.fromPath('user_audio', userAudio.path));
+    request.files.add(
+        await http.MultipartFile.fromPath('target_audio', targetAudio.path));
+
+    var response = await request.send();
+    var responseData = await response.stream.toBytes();
+    var responseString = String.fromCharCodes(responseData);
+
+    try {
+      var result = jsonDecode(responseString);
+      return result['distance'];
+    } catch (e) {
+      print('Error parsing response: $e');
+      print('Response was: $responseString');
+      throw Exception('Failed to parse server response');
     }
   }
 
-  Future<void> comparePronunciation(String filePath) async {
-    File audioFile = File(filePath);
-    List<int> audioBytes = audioFile.readAsBytesSync();
-    String audioBase64 = base64Encode(audioBytes);
+  void _onCompare() async {
+    if (_recordedFile != null) {
+      // Use the correct path for the asset
+      Directory tempDir = await getTemporaryDirectory();
+      String targetAudioPath = '${tempDir.path}/sibad.wav';
 
-    var request = {
-      'config': {
-        'encoding': 'LINEAR16',
-        'sampleRateHertz': 16000,
-        'languageCode': 'en-US',
-      },
-      'audio': {
-        'content': audioBase64,
-      },
-    };
+      // Copy the asset to a temporary location
+      ByteData data = await rootBundle.load(_audioPath2);
+      List<int> bytes =
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      await File(targetAudioPath).writeAsBytes(bytes);
 
-    var response = await http.post(
-      Uri.parse(
-          'https://speech.googleapis.com/v1/speech:recognize?key=AIzaSyBT_oqU1eZE7MDGuJpsnAOH1Z8ewQ1wslo'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(request),
-    );
-
-    if (response.statusCode == 200) {
-      var jsonResponse = json.decode(response.body);
-      if (jsonResponse['results'] != null &&
-          jsonResponse['results'].isNotEmpty) {
-        String recognizedText =
-            jsonResponse['results'][0]['alternatives'][0]['transcript'];
-        print('Recognized Text: $recognizedText');
-        // Implement your own comparison logic here
-      } else {
-        print('No speech recognized');
-      }
+      File targetAudio = File(targetAudioPath);
+      double distance = await _compareAudio(_recordedFile!, targetAudio);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Comparison Result"),
+            content: Text("Phonetic distance: $distance"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
     } else {
-      print('Error: ${response.statusCode} ${response.reasonPhrase}');
-      print('Response body: ${response.body}');
+      // Handle case where no recording is available
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text(
+                "No recording available. Please record your pronunciation first."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Non-Word Repetition Task'),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () => playAudio(AssetSource('sibad.wav')),
-                child: Text('Play Correct Pronunciation'),
-              ),
-              ElevatedButton(
-                onPressed: _isRecording ? stopRecording : startRecording,
-                child:
-                    Text(_isRecording ? 'Stop Recording' : 'Start Recording'),
-              ),
-            ],
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Non-Word Repetition Task"),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            AudioPlayerWidget(
+                audioPath: AssetSource(_audioPath), audioPlayer: _audioPlayer),
+            SizedBox(height: 20),
+            AudioRecorderWidget(
+              isRecording: _isRecording,
+              onRecord: _record,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _onCompare,
+              child: Text("Compare Pronunciation"),
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class AudioPlayerWidget extends StatelessWidget {
+  final Source audioPath;
+  final AudioPlayer audioPlayer;
+
+  AudioPlayerWidget({required this.audioPath, required this.audioPlayer});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.play_arrow),
+      onPressed: () async {
+        await audioPlayer.play(audioPath);
+      },
+    );
+  }
+}
+
+class AudioRecorderWidget extends StatelessWidget {
+  final bool isRecording;
+  final Function onRecord;
+
+  AudioRecorderWidget({required this.isRecording, required this.onRecord});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(isRecording ? Icons.stop : Icons.mic),
+      onPressed: () => onRecord(),
     );
   }
 }
