@@ -31,9 +31,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final String _audioPath = 'audio/sibad.wav'; // Corrected audio file path
+  final String _audioPath = 'audio/fim.wav'; // Corrected audio file path
   final String _audioPath2 =
-      'assets/audio/sibad.wav'; // Corrected audio file path
+      'assets/audio/fim.wav'; // Corrected audio file path
 
   final AudioPlayer _audioPlayer = AudioPlayer();
   FlutterSoundRecorder? _audioRecorder;
@@ -82,12 +82,22 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _isRecording = true;
       });
+      // Stop recording after 1 second
+      Future.delayed(Duration(seconds: 2), () async {
+        if (_isRecording) {
+          await _audioRecorder!.stopRecorder();
+          setState(() {
+            _isRecording = false;
+            _recordedFile = File(filePath);
+          });
+        }
+      });
     }
   }
 
   Future<double> _compareAudio(File userAudio, File targetAudio) async {
     var request = http.MultipartRequest(
-        'POST', Uri.parse('http://172.20.64.9:5000/compare'));
+        'POST', Uri.parse('https://sawtify-7esi5utsqq-uc.a.run.app/compare'));
     request.files
         .add(await http.MultipartFile.fromPath('user_audio', userAudio.path));
     request.files.add(
@@ -99,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     try {
       var result = jsonDecode(responseString);
+      print(result);
       return result['distance'];
     } catch (e) {
       print('Error parsing response: $e');
