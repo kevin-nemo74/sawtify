@@ -5,7 +5,7 @@ import 'package:sawtify/utils/helper_functions.dart';
 import 'login_content.dart';
 
 class TopText extends StatefulWidget {
-  const TopText({Key? key}) : super(key: key);
+  const TopText({super.key});
 
   @override
   State<TopText> createState() => _TopTextState();
@@ -32,7 +32,8 @@ class _TopTextState extends State<TopText> {
             ? 'Create\nAccount'
             : 'Welcome\nBack',
         style: const TextStyle(
-          fontSize: 40,
+          color: Colors.white,
+          fontSize: 36,
           fontWeight: FontWeight.w600,
         ),
       ),

@@ -6,7 +6,7 @@ import '../../../utils/constants.dart';
 import 'login_content.dart';
 
 class BottomText extends StatefulWidget {
-  const BottomText({Key? key}) : super(key: key);
+  const BottomText({super.key});
 
   @override
   State<BottomText> createState() => _BottomTextState();
@@ -55,8 +55,8 @@ class _BottomTextState extends State<BottomText> {
                       ? 'Already have an account? '
                       : 'Don\'t have an account? ',
                   style: const TextStyle(
-                    color: kPrimaryColor,
-                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 TextSpan(

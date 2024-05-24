@@ -1,5 +1,6 @@
 plugins {
     id "com.android.application"
+    id "com.google.gms.google-services"
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
@@ -25,8 +26,10 @@ if (flutterVersionName == null) {
 
 android {
     namespace = "com.example.sawtify"
-    compileSdk = flutter.compileSdkVersion
+    compileSdkVersion 34
     ndkVersion = flutter.ndkVersion
+    ndkVersion "25.1.8937393"
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -38,7 +41,7 @@ android {
         applicationId = "com.example.sawtify"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdk = flutter.minSdkVersion
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
@@ -51,8 +54,19 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+    apply plugin: 'com.google.gms.google-services'
+
 }
 
 flutter {
     source = "../.."
+}
+dependencies {
+  // Import the Firebase BoM
+  implementation platform('com.google.firebase:firebase-bom:33.0.0')
+
+
+  // TODO: Add the dependencies for Firebase products you want to use
+  // When using the BoM, don't specify versions in Firebase dependencies
+  // https://firebase.google.com/docs/android/setup#available-libraries
 }

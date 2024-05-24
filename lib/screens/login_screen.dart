@@ -6,7 +6,7 @@ import 'components/center_widget/center_widget.dart';
 import 'components/login_content.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
             end: Alignment.bottomCenter,
             colors: [
               Color(0x007CBFCF),
-              Color(0xB316BFC4),
+              Color(0xFFE4E7F6),
             ],
           ),
         ),
@@ -44,8 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
           begin: Alignment(0.6, -1.1),
           end: Alignment(0.7, 0.8),
           colors: [
-           Color(0xFF8EAEF1),
-            Color(0x005CDBCF),
+           Color.fromARGB(255, 208, 221, 247),
+            Color.fromARGB(0, 92, 120, 219),
           ],
         ),
       ),
@@ -57,6 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
+          resizeToAvoidBottomInset: false, // Prevent resizing when the keyboard is displayed
       body: Stack(
         children: [
           Positioned(

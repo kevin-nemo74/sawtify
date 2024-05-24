@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:sawtify/screens/entry_point.dart';
 import 'package:sawtify/utils/helper_functions.dart';
-
 import '../../../utils/constants.dart';
 import '../animations/change_screen_animation.dart';
 import 'bottom_text.dart';
@@ -13,18 +16,22 @@ enum Screens {
 }
 
 class LoginContent extends StatefulWidget {
-  const LoginContent({Key? key}) : super(key: key);
+  const LoginContent({super.key});
 
   @override
   State<LoginContent> createState() => _LoginContentState();
 }
 
-class _LoginContentState extends State<LoginContent>
-    with TickerProviderStateMixin {
+class _LoginContentState extends State<LoginContent> with TickerProviderStateMixin {
   late final List<Widget> createAccountContent;
   late final List<Widget> loginContent;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Widget inputField(String hint, IconData iconData) {
+  String name = '';
+  String email = '';
+  String password = '';
+
+  Widget inputField(String hint, IconData iconData, bool isPassword) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 8),
       child: SizedBox(
@@ -35,6 +42,16 @@ class _LoginContentState extends State<LoginContent>
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(30),
           child: TextField(
+            onChanged: (value) {
+              if (hint == 'Email') {
+                email = value;
+              } else if (hint == 'Password') {
+                password = value;
+              } else if (hint == 'Name') {
+                name = value;
+              }
+            },
+            obscureText: isPassword,
             textAlignVertical: TextAlignVertical.bottom,
             decoration: InputDecoration(
               border: OutlineInputBorder(
@@ -52,17 +69,60 @@ class _LoginContentState extends State<LoginContent>
     );
   }
 
-  Widget loginButton(String title) {
+  Future<void> signUp() async {
+    try {
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      // Store user information in Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
+        'name': name,
+        'email': email,
+        'password': password,
+
+      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
+      );
+    } on FirebaseAuthException catch (e) {
+      print(e.message);
+    }
+  }
+
+  Future<void> signIn() async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
+      );
+    } on FirebaseAuthException catch (e) {
+      print(e.message);
+    }
+  }
+
+  Widget loginButton(String title, bool isSignUp) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 135, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 4),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          if (isSignUp) {
+            signUp();
+          } else {
+            signIn();
+          }
+        },
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: const StadiumBorder(),
-          //primary: kSecondaryColor,
           elevation: 8,
           shadowColor: Colors.black87,
+          
         ),
         child: Text(
           title,
@@ -75,52 +135,6 @@ class _LoginContentState extends State<LoginContent>
     );
   }
 
-  /*Widget orDivider() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 130, vertical: 8),
-      child: Row(
-        children: [
-          Flexible(
-            child: Container(
-              height: 1,
-              color: kPrimaryColor,
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'or',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Flexible(
-            child: Container(
-              height: 1,
-              color: kPrimaryColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget logos() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset('assets/images/facebook.png'),
-          const SizedBox(width: 24),
-          Image.asset('assets/images/google.png'),
-        ],
-      ),
-    );
-  }
-*/
   Widget forgotPassword() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 110),
@@ -129,7 +143,7 @@ class _LoginContentState extends State<LoginContent>
         child: const Text(
           'Forgot Password?',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
             color: kSecondaryColor,
           ),
@@ -141,18 +155,16 @@ class _LoginContentState extends State<LoginContent>
   @override
   void initState() {
     createAccountContent = [
-      inputField('Name', Ionicons.person_outline),
-      inputField('Email', Ionicons.mail_outline),
-      inputField('Password', Ionicons.lock_closed_outline),
-      loginButton('Sign Up'),
-      /*orDivider(),
-      logos(),*/
+      inputField('Name', Ionicons.person_outline, false),
+      inputField('Email', Ionicons.mail_outline, false),
+      inputField('Password', Ionicons.lock_closed_outline, true),
+      loginButton('Sign Up', true),
     ];
 
     loginContent = [
-      inputField('Email', Ionicons.mail_outline),
-      inputField('Password', Ionicons.lock_closed_outline),
-      loginButton('Log In'),
+      inputField('Email', Ionicons.mail_outline, false),
+      inputField('Password', Ionicons.lock_closed_outline, true),
+      loginButton('Log In', false),
       forgotPassword(),
     ];
 
