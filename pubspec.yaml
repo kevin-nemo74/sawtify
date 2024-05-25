@@ -113,7 +113,6 @@ flutter:
 
   assets:
     - assets/Backgrounds/
-    - assets/RiveAssets/
     - assets/audios/
     - assets/Avatar/
 
