@@ -8,8 +8,11 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
-import 'package:sawtify/screens/time.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
+
+import 'package:sawtify/screens/time.dart';
 
 class TestPage extends StatefulWidget {
   @override
@@ -179,19 +182,58 @@ class _TestPageState extends State<TestPage>
     }
   }
 
-  void _calculateAndShowResults() {
+  Future<void> _calculateAndShowResults() async {
     int correctCount = _comparisonResults.where((result) => result).length;
     double percentage = (correctCount / 28) * 100;
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PronunciationTestResults(
-          score: percentage.toInt(),
-          testName: "Pronunciation Test",
-          feedback: "You got $correctCount out of 28 correct.",
-        ),
-      ),
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      if (true) {
+        await _saveTestResult(user.uid, percentage.toInt(), correctCount);
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PronunciationTestResults(
+              score: percentage.toInt(),
+              testName: "Pronunciation Test",
+              feedback: "You got $correctCount out of 28 correct.",
+            ),
+          ),
+        );
+      } else {}
+    } else {
+      _showUserNotLoggedInDialog();
+    }
+  }
+
+  Future<void> _saveTestResult(String uid, int score, int correctCount) async {
+    final now = DateTime.now();
+
+    await FirebaseFirestore.instance.collection('users').doc(uid).set({
+      'lastTestDate': now,
+      'score': score,
+      'correctCount': correctCount,
+    }, SetOptions(merge: true));
+  }
+
+  void _showUserNotLoggedInDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('User Not Logged In'),
+          content: Text('Please log in to take the test.'),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -389,14 +431,6 @@ class _TestPageState extends State<TestPage>
                                                             size: 40,
                                                           ),
                                               ),
-                                            ),
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.check_circle_outline,
-                                                color: Colors.white,
-                                                size: 40,
-                                              ),
-                                              onPressed: null,
                                             ),
                                           ],
                                         ),

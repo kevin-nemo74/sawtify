@@ -7,6 +7,8 @@ import 'package:sawtify/screens/test.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
+import 'contact.dart';
+
 class BottomNavigationBarWidget extends StatefulWidget {
   const BottomNavigationBarWidget({super.key});
 
@@ -23,7 +25,7 @@ class _BottomNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
   Widget build(BuildContext context) {
     final List<Widget> _pages = [
       Home(),
-      TestPage(),
+      Contact(),
       if (user != null) ProfileScreen(userId: user!.uid),
     ];
     return Scaffold(
@@ -57,11 +59,12 @@ class _BottomNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
                     color: const Color.fromARGB(255, 249, 248, 248),
                     activeColor: Color.fromARGB(255, 255, 255, 255),
                     tabBorderRadius: 20,
-                    iconSize: 20, // Decreased icon size
+                    iconSize: 20,
+                    // Decreased icon size
                     tabBackgroundColor:
                         Color.fromARGB(255, 249, 249, 249).withOpacity(0.1),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10), // Decreased padding
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    // Decreased padding
                     duration: Duration(milliseconds: 1000),
                     tabs: [
                       GButton(
@@ -69,12 +72,8 @@ class _BottomNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
                         text: 'Home',
                       ),
                       GButton(
-                        icon: LineIcons.microphone,
-                        text: 'Test',
-                      ),
-                      GButton(
                         icon: LineIcons.bookReader,
-                        text: 'Result',
+                        text: 'Contact',
                       ),
                       GButton(
                         icon: LineIcons.userCircle,
