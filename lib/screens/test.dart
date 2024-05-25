@@ -8,6 +8,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import 'package:sawtify/screens/time.dart';
 import 'dart:convert';
 
 class TestPage extends StatefulWidget {
@@ -182,23 +183,15 @@ class _TestPageState extends State<TestPage>
     int correctCount = _comparisonResults.where((result) => result).length;
     double percentage = (correctCount / 28) * 100;
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Test Results"),
-          content: Text(
-              "You got $correctCount out of 28 correct.\nPercentage: ${percentage.toStringAsFixed(2)}%"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PronunciationTestResults(
+          score: percentage.toInt(),
+          testName: "Pronunciation Test",
+          feedback: "You got $correctCount out of 28 correct.",
+        ),
+      ),
     );
   }
 

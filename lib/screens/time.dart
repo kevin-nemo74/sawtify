@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
 
 class PronunciationTestResults extends StatefulWidget {
+  final int score;
+  final String testName;
+  final String feedback;
+
+  PronunciationTestResults({
+    required this.score,
+    required this.testName,
+    required this.feedback,
+  });
+
   @override
-  _PronunciationTestResultsState createState() => _PronunciationTestResultsState();
+  _PronunciationTestResultsState createState() =>
+      _PronunciationTestResultsState();
 }
 
 class _PronunciationTestResultsState extends State<PronunciationTestResults> {
@@ -16,30 +27,32 @@ class _PronunciationTestResultsState extends State<PronunciationTestResults> {
           children: [
             SizedBox(height: 40),
             Text(
-              ' Results', // Title displayed in the interface
+              ' Results',
               style: TextStyle(
-                    fontSize: 24, // Increased font size for more emphasis
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 50, 50, 50), // Slightly darker shade for better contrast
-                    shadows: [
-                      Shadow(
-                        blurRadius: 10,
-                        color: Colors.grey.withOpacity(0.3),
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 50, 50, 50),
+                shadows: [
+                  Shadow(
+                    blurRadius: 10,
+                    color: Colors.grey.withOpacity(0.3),
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
             SizedBox(height: 10),
             Expanded(
               child: Center(
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    AnimatedGradientCircularProgressIndicator(value: 85),
+                    AnimatedGradientCircularProgressIndicator(
+                        value: widget.score),
                     Text(
-                      '85%',
+                      '${widget.score}%',
                       style: TextStyle(
-                        color: Colors.black, 
+                        color: Colors.black,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
@@ -48,7 +61,7 @@ class _PronunciationTestResultsState extends State<PronunciationTestResults> {
                 ),
               ),
             ),
-            resultCard('Vowel Sounds', 85, 'Good clarity!'),
+            resultCard(widget.testName, widget.score, widget.feedback),
           ],
         ),
       ),
@@ -72,7 +85,7 @@ class _PronunciationTestResultsState extends State<PronunciationTestResults> {
               child: Text(
                 score.toString(),
                 style: TextStyle(
-                  color: Colors.black, // Changed color to black for better visibility
+                  color: Colors.black,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -88,7 +101,7 @@ class _PronunciationTestResultsState extends State<PronunciationTestResults> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black, 
+                      color: Colors.black,
                     ),
                   ),
                   SizedBox(height: 5),
@@ -96,7 +109,7 @@ class _PronunciationTestResultsState extends State<PronunciationTestResults> {
                     feedback,
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.black, 
+                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -112,13 +125,17 @@ class _PronunciationTestResultsState extends State<PronunciationTestResults> {
 class AnimatedGradientCircularProgressIndicator extends StatefulWidget {
   final int value;
 
-  const AnimatedGradientCircularProgressIndicator({Key? key, required this.value}) : super(key: key);
+  const AnimatedGradientCircularProgressIndicator(
+      {Key? key, required this.value})
+      : super(key: key);
 
   @override
-  _AnimatedGradientCircularProgressIndicatorState createState() => _AnimatedGradientCircularProgressIndicatorState();
+  _AnimatedGradientCircularProgressIndicatorState createState() =>
+      _AnimatedGradientCircularProgressIndicatorState();
 }
 
-class _AnimatedGradientCircularProgressIndicatorState extends State<AnimatedGradientCircularProgressIndicator>
+class _AnimatedGradientCircularProgressIndicatorState
+    extends State<AnimatedGradientCircularProgressIndicator>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -176,10 +193,15 @@ class GradientCircularProgressPainter extends CustomPainter {
 
     Paint foregroundPaint = Paint()
       ..shader = LinearGradient(
-        colors: [Color.fromARGB(170, 2, 139, 252), Color.fromARGB(6, 145, 212, 245)],
+        colors: [
+          Color.fromARGB(170, 2, 139, 252),
+          Color.fromARGB(6, 145, 212, 245)
+        ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-      ).createShader(Rect.fromCircle(center: Offset(size.width / 2, size.height / 2), radius: size.width / 2))
+      ).createShader(Rect.fromCircle(
+          center: Offset(size.width / 2, size.height / 2),
+          radius: size.width / 2))
       ..strokeWidth = 16
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -190,7 +212,8 @@ class GradientCircularProgressPainter extends CustomPainter {
     canvas.drawCircle(center, radius, backgroundPaint);
 
     double angle = 2 * 3.141592653589793 * (value / 100);
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), -3.141592653589793 / 2, angle, false, foregroundPaint);
+    canvas.drawArc(Rect.fromCircle(center: center, radius: radius),
+        -3.141592653589793 / 2, angle, false, foregroundPaint);
   }
 
   @override
