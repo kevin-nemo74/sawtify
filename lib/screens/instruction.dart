@@ -101,7 +101,7 @@ class _InstructionState extends State<Instruction>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Adjust padding to control size
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), 
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,

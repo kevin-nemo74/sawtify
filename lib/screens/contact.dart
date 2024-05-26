@@ -20,7 +20,6 @@ List<Doctor> doctors = [
   Doctor(name: 'Dr. Guenez Mohamed', specialization: 'Pathlogists', phoneNumber: '055-554-4321', isActive: true),
     Doctor(name: 'Dr. John Doe', specialization: 'Pathlogists', phoneNumber: '055-524-4321', isActive: false),
 
-  // Add more doctors here
 ];
 
 class Contact extends StatelessWidget {
@@ -33,25 +32,22 @@ class Contact extends StatelessWidget {
 
       body: Stack(
         children: [
-          // Clipped background image
+         
           ClipPath(
             clipper: TopCircularClipper(),
             child: Container(
-              height: 400, // Adjust height as needed
+              height: 400, 
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/Avatar/did.jpg'), // Add your background image asset here
+                  image: AssetImage('assets/Avatar/did.jpg'), 
                   fit: BoxFit.cover,
                 ),
               ),
             ),
           ),
-         /* Container(
-            color: Color.fromARGB(255, 252, 251, 251).withOpacity(0.3), // Semi-transparent overlay for readability
-          ),*/
-          // Content
+       
           Padding(
-            padding: const EdgeInsets.only(top: 250), // Adjust padding to match the background height
+            padding: const EdgeInsets.only(top: 250), 
             child: AnimationLimiter(
               child: ListView.builder(
                 itemCount: doctors.length,
@@ -92,7 +88,7 @@ class DoctorCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: AssetImage('assets/Avatar/amroune.jpg'), // Add doctor avatar image asset here
+              backgroundImage: AssetImage('assets/Avatar/amroune.jpg'), 
             ),
             const SizedBox(width: 15),
             Expanded(
@@ -101,7 +97,7 @@ class DoctorCard extends StatelessWidget {
                 children: [
                   Text(
                     doctor.name,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 118, 156, 237)),
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 118, 156, 237)),
                   ),
                   const SizedBox(height: 5),
                   Text('Specialization: ${doctor.specialization}'),
