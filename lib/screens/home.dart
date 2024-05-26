@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:sawtify/screens/test.dart';
+import 'package:sawtify/screens/instruction.dart';
 
 //import 'package:sawtify/screens/test.dart';
 import '../../models/course.dart';
@@ -87,7 +87,7 @@ class _HomeState extends State<Home> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => TestPage()));
+                                  builder: (context) => Instruction()));
                         } else {
                           _showTestLimitExceededDialog();
                         }

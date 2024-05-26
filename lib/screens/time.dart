@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sawtify/screens/entry_point.dart';
 
 class PronunciationTestResults extends StatefulWidget {
   final int score;
@@ -110,8 +111,32 @@ class _PronunciationTestResultsState extends State<PronunciationTestResults> {
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
+
                     ),
                   ),
+                    SizedBox(height: 5),
+ElevatedButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BottomNavigationBarWidget(), // Replace Home with your desired page
+      ),
+    );
+  },
+  style: ElevatedButton.styleFrom(
+    foregroundColor: Colors.white, backgroundColor: Color.fromARGB(255, 143, 197, 241), // Text color
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(50), // Border radius
+    ),
+    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), // Padding
+    elevation: 5, // Elevation
+  ),
+  child: Text('Back to Home Page'),
+),
+
+
+
                 ],
               ),
             ),

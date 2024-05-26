@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sawtify/screens/profile.dart';
-import 'package:sawtify/screens/time.dart';
+//import 'package:sawtify/screens/time.dart';
 import 'package:sawtify/screens/home.dart';
-import 'package:sawtify/screens/test.dart';
+//import 'package:sawtify/screens/test.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
@@ -72,7 +72,7 @@ class _BottomNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
                         text: 'Home',
                       ),
                       GButton(
-                        icon: LineIcons.bookReader,
+                        icon: LineIcons.users,
                         text: 'Contact',
                       ),
                       GButton(
