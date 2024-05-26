@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sawtify/screens/contact.dart';
 import 'package:sawtify/screens/entry_point.dart';
 
 class PronunciationTestResults extends StatefulWidget {
@@ -129,12 +130,32 @@ ElevatedButton(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(50), 
     ),
-    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), 
+    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 18), 
     elevation: 5, // Elevation
   ),
   child: Text('Back to Home Page'),
 ),
 
+                    SizedBox(height: 5),
+                    ElevatedButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Contact(), 
+      ),
+    );
+  },
+  style: ElevatedButton.styleFrom(
+    foregroundColor: Colors.white, backgroundColor: Color.fromARGB(255, 143, 197, 241), 
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(50), 
+    ),
+    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), 
+    elevation: 5, // Elevation
+  ),
+  child: Text(' Doctors Contact     '),
+),
 
 
                 ],

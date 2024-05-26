@@ -32,7 +32,7 @@ class _InstructionState extends State<Instruction>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -42,8 +42,12 @@ class _InstructionState extends State<Instruction>
               child: ScaleTransition(
                 scale: _animation,
                 child: Text(
-                  ' Welcome to Sawtify! ',
-                  style: const TextStyle(fontSize: 24, color: Color.fromARGB(255, 43, 104, 236),fontWeight:FontWeight.bold),
+                  'Welcome to Sawtify!',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 43, 104, 236),
+                  ),
                 ),
               ),
             ),
@@ -51,7 +55,10 @@ class _InstructionState extends State<Instruction>
               padding: const EdgeInsets.all(20.0),
               child: Text(
                 'This app will guide you through a short assessment task designed to evaluate your speech patterns.',
-                style: TextStyle(fontSize: 18,color:const Color.fromARGB(255, 104, 144, 229) ),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Color.fromARGB(255, 104, 144, 229),
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -85,53 +92,45 @@ class _InstructionState extends State<Instruction>
               emoji: '⏰',
             ),
             SizedBox(height: 20),
-  Center(
-  child: ElevatedButton(
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TestPage(),
-        ),
-      );
-    },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xFF8EAEF1),
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16), 
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          '  Start Test',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        SizedBox(width: 8),
-        ScaleTransition(
-          scale: AnimationController(
-            duration: Duration(milliseconds: 300),
-            vsync: this,
-          )..repeat(reverse: true),
-          child: Icon(
-            Icons.arrow_forward,
-            color: Colors.white,
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-
-
-
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TestPage(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF8EAEF1),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Start Test',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    AnimatedIcon(
+                      icon: AnimatedIcons.play_pause,
+                      progress: _animationController,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ),
             SizedBox(height: 20),
           ],
         ),
@@ -193,24 +192,40 @@ class _AnimatedInstructionCardState extends State<AnimatedInstructionCard>
       child: Card(
         margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
               Text(
-                widget.title,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: Color.fromARGB(255, 104, 144, 229)),
-              ),
-              SizedBox(height: 10),
-              Text(
-                widget.description,
-                style: TextStyle(fontSize: 16, color:Color.fromARGB(255, 104, 144, 229)),
-              ),
-              SizedBox(height: 10),
-              Text(
                 widget.emoji,
-                style: TextStyle(fontSize: 24),
+                style: TextStyle(fontSize: 30),
+              ),
+              SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 104, 144, 229),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      widget.description,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Color.fromARGB(255, 104, 144, 229),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
