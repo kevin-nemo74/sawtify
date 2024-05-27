@@ -16,9 +16,21 @@ class Doctor {
 }
 
 List<Doctor> doctors = [
-  Doctor(name: 'Dr. Boualleg Amira', specialization: 'Pathologists', phoneNumber: '067-670-5062', isActive: true),
-  Doctor(name: 'Dr. Guenez Mohamed', specialization: 'Pathologists', phoneNumber: '055-554-4321', isActive: true),
-  Doctor(name: 'Dr. John Doe', specialization: 'Pathologists', phoneNumber: '055-524-4321', isActive: false),
+  Doctor(
+      name: 'Dr. Boualleg Amira',
+      specialization: 'Pathologist',
+      phoneNumber: '067-670-5062',
+      isActive: true),
+  Doctor(
+      name: 'Dr. Guenez Mohamed',
+      specialization: 'Pathologist',
+      phoneNumber: '055-554-4321',
+      isActive: true),
+  Doctor(
+      name: 'Dr. John Doe',
+      specialization: 'Pathologist',
+      phoneNumber: '055-524-4321',
+      isActive: false),
 ];
 
 class Contact extends StatelessWidget {

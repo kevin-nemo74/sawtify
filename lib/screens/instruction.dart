@@ -44,7 +44,7 @@ class _InstructionState extends State<Instruction>
                 child: Text(
                   'Welcome to Sawtify!',
                   style: TextStyle(
-                    fontSize: 32,
+                    fontSize: 25,
                     fontWeight: FontWeight.bold,
                     color: Color.fromARGB(255, 43, 104, 236),
                   ),
@@ -56,7 +56,7 @@ class _InstructionState extends State<Instruction>
               child: Text(
                 'This app will guide you through a short assessment task designed to evaluate your speech patterns.',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                   color: Color.fromARGB(255, 104, 144, 229),
                 ),
                 textAlign: TextAlign.center,
