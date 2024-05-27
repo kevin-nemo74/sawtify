@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sawtify/screens/instruction.dart';
+import 'package:sawtify/screens/time.dart';
 
 //import 'package:sawtify/screens/test.dart';
 import '../../models/course.dart';
@@ -89,6 +90,38 @@ class _HomeState extends State<Home> {
                               MaterialPageRoute(
                                   builder: (context) => Instruction()));
                         } else {
+                          final _firestore = FirebaseFirestore.instance;
+                          final userDoc = await _firestore.collection('users').doc(user.uid).get();
+
+                          if (userDoc.exists) {
+                            final data = userDoc.data();
+                            final score = data?['score'];
+                            final testName = data?['testName'] ?? '';
+                            final feedback = data?['feedback'] ?? '';
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PronunciationTestResults(
+                                  score: score,
+                                  testName: testName,
+                                  feedback: feedback,
+                                ),
+                              ),
+                            );
+                          } else {
+                            // Handle case where user document does not exist
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PronunciationTestResults(
+                                  score: 0,
+                                  testName: '',
+                                  feedback: '',
+                                ),
+                              ),
+                            );
+                          }
                           _showTestLimitExceededDialog();
                         }
                       },
