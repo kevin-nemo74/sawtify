@@ -46,19 +46,26 @@ class _PronunciationTestResultsState extends State<PronunciationTestResults> {
             SizedBox(height: 10),
             Expanded(
               child: Center(
-                child: Stack(
-                  alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    AnimatedGradientCircularProgressIndicator(
-                        value: widget.score),
-                    Text(
-                      '${widget.score}%',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        AnimatedGradientCircularProgressIndicator(
+                            value: widget.score),
+                        Text(
+                          '${widget.score}%',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
+                    SizedBox(height: 20),
+                    getFeedbackMessage(widget.score),
                   ],
                 ),
               ),
@@ -67,6 +74,39 @@ class _PronunciationTestResultsState extends State<PronunciationTestResults> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget getFeedbackMessage(int score) {
+    String message;
+    Color color;
+
+    if (score < 30) {
+      message = 'High probability of having a speech impediment. Please consult a doctor.';
+      color = Colors.red;
+    } else if (score < 60) {
+      message = 'Medium probability of having a speech impediment. Consider consulting a doctor.';
+      color = Colors.yellow[700]!;
+    } else {
+      message = 'Low probability of having a speech impediment.';
+      color = Colors.green;
+    }
+
+    return Text(
+      message,
+      style: TextStyle(
+        color: color,
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        shadows: [
+          Shadow(
+            blurRadius: 5,
+            color: color.withOpacity(0.5),
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      textAlign: TextAlign.center,
     );
   }
 
@@ -112,52 +152,52 @@ class _PronunciationTestResultsState extends State<PronunciationTestResults> {
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
-
                     ),
                   ),
-                    SizedBox(height: 5),
-ElevatedButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BottomNavigationBarWidget(), 
-      ),
-    );
-  },
-  style: ElevatedButton.styleFrom(
-    foregroundColor: Colors.white, backgroundColor: Color.fromARGB(255, 143, 197, 241), 
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(50), 
-    ),
-    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 18), 
-    elevation: 5, // Elevation
-  ),
-  child: Text('Back to Home Page'),
-),
-
-                    SizedBox(height: 5),
-                    ElevatedButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Contact(), 
-      ),
-    );
-  },
-  style: ElevatedButton.styleFrom(
-    foregroundColor: Colors.white, backgroundColor: Color.fromARGB(255, 143, 197, 241), 
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(50), 
-    ),
-    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20), 
-    elevation: 5, // Elevation
-  ),
-  child: Text(' Doctors Contact     '),
-),
-
-
+                  SizedBox(height: 5),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BottomNavigationBarWidget(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Color.fromARGB(255, 143, 197, 241),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 18),
+                      elevation: 5, // Elevation
+                    ),
+                    child: Text('Back to Home Page'),
+                  ),
+                  SizedBox(height: 5),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Contact(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Color.fromARGB(255, 143, 197, 241),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      elevation: 5, // Elevation
+                    ),
+                    child: Text(' Doctors Contact     '),
+                  ),
                 ],
               ),
             ),
