@@ -1,13 +1,14 @@
+
 import 'package:flutter/material.dart';
 
 import '../components/login_content.dart';
 
 class ChangeScreenAnimation {
-  static late final AnimationController topTextController;
-  static late final Animation<Offset> topTextAnimation;
+  static late  AnimationController topTextController;
+  static late  Animation<Offset> topTextAnimation;
 
-  static late final AnimationController bottomTextController;
-  static late final Animation<Offset> bottomTextAnimation;
+  static late  AnimationController bottomTextController;
+  static late  Animation<Offset> bottomTextAnimation;
 
   static final List<AnimationController> createAccountControllers = [];
   static final List<Animation<Offset>> createAccountAnimations = [];
@@ -143,4 +144,48 @@ class ChangeScreenAnimation {
 
     isPlaying = false;
   }
+
+  //reset
+  static Future<void> reset() async {
+  topTextController.reset();
+  bottomTextController.reset();
+  for (var controller in createAccountControllers) {
+    controller.reset();
+  }
+
+  for (var controller in loginControllers) {
+    controller.reset();
+  }
+
+  bottomTextController.addStatusListener(_bottomTextAnimationListener);
+
+  isPlaying = false;
+}
+
+static void _bottomTextAnimationListener(AnimationStatus status) {
+  if (status == AnimationStatus.completed) {
+    currentScreen = currentScreen == Screens.createAccount
+        ? Screens.welcomeBack
+        : Screens.createAccount;
+
+    if (currentScreen == Screens.createAccount) {
+      _animateControllers(createAccountControllers, forward: true);
+      _animateControllers(loginControllers, forward: false);
+    } else if (currentScreen == Screens.welcomeBack) {
+      _animateControllers(loginControllers, forward: true);
+      _animateControllers(createAccountControllers, forward: false);
+    }
+  }
+}
+
+static void _animateControllers(List<AnimationController> controllers, {required bool forward}) {
+  for (var controller in controllers) {
+    if (forward) {
+      controller.forward();  
+    } else {
+      controller.reverse();  
+    }
+  }
+}
+
 }

@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:sawtify/screens/animations/change_screen_animation.dart';
+import 'package:sawtify/welcom.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userId;
@@ -11,15 +14,23 @@ class ProfileScreen extends StatefulWidget {
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateMixin {
   String _userName = '';
   String _userEmail = '';
+  final _auth = FirebaseAuth.instance;
+
+
 
   @override
   void initState() {
-    super.initState();
+     super.initState();
     _fetchUserData();
+
+  
   }
+
+
+  
 
   Future<void> _fetchUserData() async {
     try {
@@ -38,9 +49,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  
+
+
   @override
   Widget build(BuildContext context) {
+  
     return Scaffold(
+    /* appBar: AppBar(
+        title: Text('Logout'), 
+      ),*/
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
@@ -62,8 +80,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     alignment: Alignment.center,
                     children: [
                       Animate(
-                        effects: [FadeEffect(), ScaleEffect()],
-                        child: CircleAvatar(
+                        effects: [const FadeEffect(), const ScaleEffect()],
+                        child: const CircleAvatar(
                           radius: 50,
                           backgroundImage: AssetImage('assets/Backgrounds/Avata.gif'),
                         ),
@@ -72,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         bottom: 1,
                         right: -3,
                         child: IconButton(
-                          icon: Icon(Icons.edit),
+                          icon: const Icon(Icons.edit),
                           onPressed: () {
                           },
                         ),
@@ -80,26 +98,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Column(
                   children: [
                     Animate(
-                      effects: [FadeEffect(), SlideEffect()],
+                      effects: [const FadeEffect(), const SlideEffect()],
                       child: Text(
                         _userName,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Color.fromARGB(255, 0, 0, 0),
                         ),
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Animate(
-                      effects: [FadeEffect(), SlideEffect()],
+                      effects: [const FadeEffect(), const SlideEffect()],
                       child: Text(
                         _userEmail,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Color.fromARGB(255, 0, 0, 0),
                         ),
@@ -107,35 +125,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                   elevation: 5,
                   child: ListTile(
-                    leading: Icon(Icons.settings),
-                    title: Text('Settings'),
-                    trailing: Icon(Icons.arrow_forward_ios),
+                    leading: const Icon(Icons.settings),
+                    title: const Text('Settings'),
+                    trailing: const Icon(Icons.arrow_forward_ios),
                     onTap: () {
                     },
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                   elevation: 5,
                   child: ListTile(
-                    leading: Icon(Icons.logout),
-                    title: Text('Logout'),
-                    trailing: Icon(Icons.arrow_forward_ios),
-                    onTap: () {
+                    leading: const Icon(Icons.logout),
+                    title: const Text('Logout'),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                        onTap: () async {
+                      await _auth.signOut();
+                      ChangeScreenAnimation.reset();
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Welcome()));
                     },
+      
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
               ],
             ),
           ),

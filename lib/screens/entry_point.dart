@@ -72,7 +72,7 @@ class _BottomNavigationBarWidgetState extends State<BottomNavigationBarWidget> {
                         text: 'Home',
                       ),
                       GButton(
-                        icon: LineIcons.users,
+                        icon: LineIcons.phone,
                         text: 'Contact',
                       ),
                       GButton(
