@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/audioplayers.dart' as audio;
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -21,7 +21,7 @@ class TestPage extends StatefulWidget {
 
 class _TestPageState extends State<TestPage>
     with SingleTickerProviderStateMixin {
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  final audio.AudioPlayer _audioPlayer = audio.AudioPlayer();
   bool _isPlaying = false;
   int? _currentPlayingIndex;
   Set<int> _playedIndices = {};
@@ -44,6 +44,12 @@ class _TestPageState extends State<TestPage>
       duration: const Duration(seconds: 1),
       vsync: this,
     )..repeat(reverse: true);
+
+    _audioPlayer.onPlayerStateChanged.listen((audio.PlayerState state) {
+      setState(() {
+        _isPlaying = state == audio.PlayerState.playing;
+      });
+    });
   }
 
   @override
@@ -90,14 +96,16 @@ class _TestPageState extends State<TestPage>
       await _audioPlayer.pause();
       setState(() {
         _isPlaying = false;
+        _currentPlayingIndex =
+            null; // Ensure the current playing index is reset
       });
     } else {
-      await _audioPlayer.play(DeviceFileSource(filePath));
       setState(() {
         _isPlaying = true;
         _currentPlayingIndex = index;
         _playedIndices.add(index);
       });
+      await _audioPlayer.play(audio.DeviceFileSource(filePath));
     }
   }
 
