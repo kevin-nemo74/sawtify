@@ -35,6 +35,9 @@ class _TestPageState extends State<TestPage>
   // Store comparison results
   List<bool> _comparisonResults = List.generate(28, (index) => false);
 
+  // Variable to keep track of the number of audio files played
+  int _playedAudioCount = 0;
+
   @override
   void initState() {
     super.initState();
@@ -104,6 +107,7 @@ class _TestPageState extends State<TestPage>
         _isPlaying = true;
         _currentPlayingIndex = index;
         _playedIndices.add(index);
+        _playedAudioCount++; // Increment the played audio count
       });
       await _audioPlayer.play(audio.DeviceFileSource(filePath));
     }
@@ -275,7 +279,7 @@ class _TestPageState extends State<TestPage>
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: LinearProgressIndicator(
-                  value: _isPlaying ? ((_currentPlayingIndex! + 1) / 28) : 0.1,
+                  value: _playedAudioCount / 28, // Use played audio count
                   minHeight: 10,
                   backgroundColor: Colors.grey[300],
                   valueColor: AlwaysStoppedAnimation<Color>(

@@ -91,7 +91,10 @@ class _HomeState extends State<Home> {
                                   builder: (context) => Instruction()));
                         } else {
                           final _firestore = FirebaseFirestore.instance;
-                          final userDoc = await _firestore.collection('users').doc(user.uid).get();
+                          final userDoc = await _firestore
+                              .collection('users')
+                              .doc(user.uid)
+                              .get();
 
                           if (userDoc.exists) {
                             final data = userDoc.data();
@@ -192,7 +195,7 @@ class _HomeState extends State<Home> {
         final now = DateTime.now();
         final difference = now.difference(lastTestDate).inDays;
 
-        return difference >= 10;
+        return difference >= 3;
       }
     }
 
@@ -214,7 +217,7 @@ class _HomeState extends State<Home> {
             ],
           ),
           content: Text(
-            'You can only take the test once every 10 days.',
+            'You can only take the test once every 3 days.',
             style:
                 TextStyle(height: 1.5), // Line spacing for better readability
           ),
