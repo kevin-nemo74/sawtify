@@ -14,32 +14,31 @@ class ProfileScreen extends StatefulWidget {
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateMixin {
+class _ProfileScreenState extends State<ProfileScreen>
+    with TickerProviderStateMixin {
   String _userName = '';
   String _userEmail = '';
   final _auth = FirebaseAuth.instance;
 
-
-
   @override
   void initState() {
-     super.initState();
+    super.initState();
     _fetchUserData();
-
-  
   }
-
-
-  
 
   Future<void> _fetchUserData() async {
     try {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(widget.userId).get();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.userId)
+          .get();
       print('Fetched user data: ${userDoc.data()}'); // Debug print statement
       if (userDoc.exists) {
         setState(() {
-          _userName = userDoc['name'] ?? 'No Name'; // Use 'No Name' if the field is null
-          _userEmail = userDoc['email'] ?? 'No Email'; // Use 'No Email' if the field is null
+          _userName = userDoc['name'] ??
+              'No Name'; // Use 'No Name' if the field is null
+          _userEmail = userDoc['email'] ??
+              'No Email'; // Use 'No Email' if the field is null
         });
       } else {
         print('User document does not exist');
@@ -49,15 +48,11 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     }
   }
 
-  
-
-
   @override
   Widget build(BuildContext context) {
-  
     return Scaffold(
-    /* appBar: AppBar(
-        title: Text('Logout'), 
+      /* appBar: AppBar(
+        title: Text('Logout'),
       ),*/
       extendBodyBehindAppBar: true,
       body: Stack(
@@ -66,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
             clipper: TopCircularClipper(),
             child: Container(
               height: 250,
-              color: const Color.fromRGBO(142, 174, 241, 1), 
+              color: const Color.fromRGBO(142, 174, 241, 1),
             ),
           ),
           SingleChildScrollView(
@@ -83,7 +78,8 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                         effects: [const FadeEffect(), const ScaleEffect()],
                         child: const CircleAvatar(
                           radius: 50,
-                          backgroundImage: AssetImage('assets/Backgrounds/Avata.gif'),
+                          backgroundImage:
+                              AssetImage('assets/Backgrounds/Avata.gif'),
                         ),
                       ),
                       Positioned(
@@ -91,8 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                         right: -3,
                         child: IconButton(
                           icon: const Icon(Icons.edit),
-                          onPressed: () {
-                          },
+                          onPressed: () {},
                         ),
                       ),
                     ],
@@ -131,13 +126,6 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                     borderRadius: BorderRadius.circular(15),
                   ),
                   elevation: 5,
-                  child: ListTile(
-                    leading: const Icon(Icons.settings),
-                    title: const Text('Settings'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {
-                    },
-                  ),
                 ),
                 const SizedBox(height: 10),
                 Card(
@@ -149,14 +137,15 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                     leading: const Icon(Icons.logout),
                     title: const Text('Logout'),
                     trailing: const Icon(Icons.arrow_forward_ios),
-                         onTap: () async {
+                    onTap: () async {
                       await _auth.signOut();
-                      await ChangeScreenAnimation.reset(vsync: this, createAccountItems: 3, loginItems: 3);
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+                      await ChangeScreenAnimation.reset(
+                          vsync: this, createAccountItems: 3, loginItems: 3);
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const LoginScreen()));
                     },
-                
-
-      
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -174,7 +163,8 @@ class TopCircularClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     final path = Path();
     path.lineTo(0, size.height - 50);
-    path.quadraticBezierTo(size.width / 2, size.height, size.width, size.height - 50);
+    path.quadraticBezierTo(
+        size.width / 2, size.height, size.width, size.height - 50);
     path.lineTo(size.width, 0);
     path.close();
     return path;

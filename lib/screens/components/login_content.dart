@@ -9,6 +9,7 @@ import '../../../utils/constants.dart';
 import '../animations/change_screen_animation.dart';
 import 'bottom_text.dart';
 import 'top_text.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 enum Screens {
   createAccount,
@@ -22,7 +23,8 @@ class LoginContent extends StatefulWidget {
   State<LoginContent> createState() => _LoginContentState();
 }
 
-class _LoginContentState extends State<LoginContent> with TickerProviderStateMixin {
+class _LoginContentState extends State<LoginContent>
+    with TickerProviderStateMixin {
   late final List<Widget> createAccountContent;
   late final List<Widget> loginContent;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -30,6 +32,7 @@ class _LoginContentState extends State<LoginContent> with TickerProviderStateMix
   String name = '';
   String email = '';
   String password = '';
+  bool _saving = false;
 
   Widget inputField(String hint, IconData iconData, bool isPassword) {
     return Padding(
@@ -70,48 +73,13 @@ class _LoginContentState extends State<LoginContent> with TickerProviderStateMix
   }
 
   Future<void> signUp() async {
-  if (password.length < 6) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Sign Up Error"),
-          content: Text("The password must be at least 6 characters long."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-    return;
-  }
-  try {
-    UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
-      'name': name,
-      'email': email,
-      'password': password,
-    });
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
-    );
-  } on FirebaseAuthException catch (e) {
-    if (e.code == 'email-already-in-use') {
+    if (password.length < 6) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text("Sign Up Error"),
-            content: Text("The email address is already in use. Please use a different email address."),
+            content: Text("The password must be at least 6 characters long."),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
@@ -123,104 +91,161 @@ class _LoginContentState extends State<LoginContent> with TickerProviderStateMix
           );
         },
       );
-    } else {
-      print(e.message);
+      return;
+    }
+    setState(() {
+      _saving = true;
+    });
+    try {
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user?.uid)
+          .set({
+        'name': name,
+        'email': email,
+        'password': password,
+      });
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
+      );
+      setState(() {
+        _saving = false;
+      });
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _saving = false;
+      });
+      if (e.code == 'email-already-in-use') {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Sign Up Error"),
+              content: Text(
+                  "The email address is already in use. Please use a different email address."),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        print(e.message);
+      }
     }
   }
-}
 
+  Future<void> signIn() async {
+    setState(() {
+      _saving = true;
+    });
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await _updatePasswordInFirestore(email);
 
-Future<void> signIn() async {
-  try {
-    UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-    await _updatePasswordInFirestore(email);
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
-    );
-  } on FirebaseAuthException catch (e) {
-    String errorMessage = 'An error occurred. Please try again.';
-    if (e.code == 'user-not-found') {
-      errorMessage = 'No user found with this email.';
-    } else if (e.code == 'wrong-password') {
-      errorMessage = 'Incorrect password.';
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
+      );
+      setState(() {
+        _saving = false;
+      });
+    } on FirebaseAuthException catch (e) {
+      String errorMessage = 'An error occurred. Please try again.';
+      if (e.code == 'user-not-found') {
+        errorMessage = 'No user found with this email.';
+      } else if (e.code == 'wrong-password') {
+        errorMessage = 'Incorrect password.';
+      }
+      setState(() {
+        _saving = false;
+      });
+      // Display error message using a SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
-
-    // Display error message using a SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(errorMessage),
-        duration: Duration(seconds: 2),
-      ),
-    );
   }
-}
-
-
 
   Future<void> resetPassword() async {
-  try {
-    await _auth.sendPasswordResetEmail(email: email);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Password Reset"),
-          content: Text("Password reset link has been sent to your email."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-  } catch (e) {
-    print("Error sending password reset email: $e");
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Error"),
-          content: Text("Failed to send password reset email."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-Future<void> _updatePasswordInFirestore(String email) async {
-  try {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email).get();
-    
-    if (querySnapshot.docs.isNotEmpty) {
-      DocumentSnapshot userDoc = querySnapshot.docs.first;
-      await userDoc.reference.update({
-        'password': password, 
-      });
-      print('Password updated in Firestore for user: $email');
-    } else {
-      print('No user found with email: $email');
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Password Reset"),
+            content: Text("Password reset link has been sent to your email."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      print("Error sending password reset email: $e");
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text("Failed to send password reset email."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
+      );
     }
-  } catch (e) {
-    print('Error updating password in Firestore: $e');
   }
-}
 
+  Future<void> _updatePasswordInFirestore(String email) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot userDoc = querySnapshot.docs.first;
+        await userDoc.reference.update({
+          'password': password,
+        });
+        print('Password updated in Firestore for user: $email');
+      } else {
+        print('No user found with email: $email');
+      }
+    } catch (e) {
+      print('Error updating password in Firestore: $e');
+    }
+  }
 
   Widget loginButton(String title, bool isSignUp) {
     return Padding(
@@ -238,7 +263,6 @@ Future<void> _updatePasswordInFirestore(String email) async {
           shape: const StadiumBorder(),
           elevation: 8,
           shadowColor: Colors.black87,
-          
         ),
         child: Text(
           title,
@@ -254,10 +278,10 @@ Future<void> _updatePasswordInFirestore(String email) async {
   Widget forgotPassword() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 110),
-   child: TextButton(
-      onPressed: resetPassword,
-      child: const Text(
-        'Forgot Password?',
+      child: TextButton(
+        onPressed: resetPassword,
+        child: const Text(
+          'Forgot Password?',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -316,38 +340,41 @@ Future<void> _updatePasswordInFirestore(String email) async {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        const Positioned(
-          top: 136,
-          left: 24,
-          child: TopText(),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 100),
-          child: Stack(
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: createAccountContent,
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: loginContent,
-              ),
-            ],
+    return ModalProgressHUD(
+      inAsyncCall: _saving,
+      child: Stack(
+        children: [
+          const Positioned(
+            top: 136,
+            left: 24,
+            child: TopText(),
           ),
-        ),
-        const Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 50),
-            child: BottomText(),
+          Padding(
+            padding: const EdgeInsets.only(top: 100),
+            child: Stack(
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: createAccountContent,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: loginContent,
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 50),
+              child: BottomText(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

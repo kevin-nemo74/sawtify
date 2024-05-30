@@ -58,6 +58,7 @@ dependencies:
   fftea: ^1.5.0
   flutter_tts: ^3.0.0
   carousel_slider: ^4.2.1
+  modal_progress_hud_nsn: ^0.5.1
 
 dev_dependencies:
   flutter_test:
