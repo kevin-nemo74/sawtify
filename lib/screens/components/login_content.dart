@@ -70,42 +70,98 @@ class _LoginContentState extends State<LoginContent> with TickerProviderStateMix
   }
 
   Future<void> signUp() async {
-    try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
+  if (password.length < 6) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Sign Up Error"),
+          content: Text("The password must be at least 6 characters long."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+    return;
+  }
+  try {
+    UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
+      'name': name,
+      'email': email,
+      'password': password,
+    });
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
+    );
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'email-already-in-use') {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Sign Up Error"),
+            content: Text("The email address is already in use. Please use a different email address."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("OK"),
+              ),
+            ],
+          );
+        },
       );
-      await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
-        'name': name,
-        'email': email,
-        'password': password,
-
-      });
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
-      );
-    } on FirebaseAuthException catch (e) {
+    } else {
       print(e.message);
     }
   }
+}
 
-  Future<void> signIn() async {
-    try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-          await _updatePasswordInFirestore(email);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
-      );
-    } on FirebaseAuthException catch (e) {
-      print(e.message);
+Future<void> signIn() async {
+  try {
+    UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    await _updatePasswordInFirestore(email);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
+    );
+  } on FirebaseAuthException catch (e) {
+    String errorMessage = 'An error occurred. Please try again.';
+    if (e.code == 'user-not-found') {
+      errorMessage = 'No user found with this email.';
+    } else if (e.code == 'wrong-password') {
+      errorMessage = 'Incorrect password.';
     }
+
+    // Display error message using a SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
+}
+
+
+
   Future<void> resetPassword() async {
   try {
     await _auth.sendPasswordResetEmail(email: email);
