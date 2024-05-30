@@ -146,46 +146,29 @@ class ChangeScreenAnimation {
   }
 
   //reset
-  static Future<void> reset() async {
-  topTextController.reset();
-  bottomTextController.reset();
-  for (var controller in createAccountControllers) {
-    controller.reset();
-  }
-
-  for (var controller in loginControllers) {
-    controller.reset();
-  }
-
-  bottomTextController.addStatusListener(_bottomTextAnimationListener);
-
-  isPlaying = false;
-}
-
-static void _bottomTextAnimationListener(AnimationStatus status) {
-  if (status == AnimationStatus.completed) {
-    currentScreen = currentScreen == Screens.createAccount
-        ? Screens.welcomeBack
-        : Screens.createAccount;
-
-    if (currentScreen == Screens.createAccount) {
-      _animateControllers(createAccountControllers, forward: true);
-      _animateControllers(loginControllers, forward: false);
-    } else if (currentScreen == Screens.welcomeBack) {
-      _animateControllers(loginControllers, forward: true);
-      _animateControllers(createAccountControllers, forward: false);
+  static Future<void> reset({required TickerProvider vsync, required int createAccountItems, required int loginItems}) async {
+    topTextController.dispose();
+    bottomTextController.dispose();
+    for (var controller in createAccountControllers) {
+      controller.dispose();
     }
-  }
-}
-
-static void _animateControllers(List<AnimationController> controllers, {required bool forward}) {
-  for (var controller in controllers) {
-    if (forward) {
-      controller.forward();  
-    } else {
-      controller.reverse();  
+    for (var controller in loginControllers) {
+      controller.dispose();
     }
+
+    createAccountControllers.clear();
+    createAccountAnimations.clear();
+    loginControllers.clear();
+    loginAnimations.clear();
+
+    initialize(vsync: vsync, createAccountItems: createAccountItems, loginItems: loginItems);
+
+    currentScreen = Screens.createAccount;
+    isPlaying = false;
   }
 }
 
-}
+
+
+
+

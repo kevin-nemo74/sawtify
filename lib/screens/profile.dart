@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:sawtify/screens/animations/change_screen_animation.dart';
-import 'package:sawtify/welcom.dart';
+import 'package:sawtify/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String userId;
@@ -149,11 +149,13 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
                     leading: const Icon(Icons.logout),
                     title: const Text('Logout'),
                     trailing: const Icon(Icons.arrow_forward_ios),
-                        onTap: () async {
+                         onTap: () async {
                       await _auth.signOut();
-                      ChangeScreenAnimation.reset();
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Welcome()));
+                      await ChangeScreenAnimation.reset(vsync: this, createAccountItems: 3, loginItems: 3);
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
                     },
+                
+
       
                   ),
                 ),

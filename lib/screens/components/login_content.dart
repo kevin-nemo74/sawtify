@@ -75,7 +75,6 @@ class _LoginContentState extends State<LoginContent> with TickerProviderStateMix
         email: email,
         password: password,
       );
-      // Store user information in Firestore
       await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
         'name': name,
         'email': email,
@@ -97,6 +96,8 @@ class _LoginContentState extends State<LoginContent> with TickerProviderStateMix
         email: email,
         password: password,
       );
+          await _updatePasswordInFirestore(email);
+
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => BottomNavigationBarWidget()),
@@ -105,6 +106,65 @@ class _LoginContentState extends State<LoginContent> with TickerProviderStateMix
       print(e.message);
     }
   }
+  Future<void> resetPassword() async {
+  try {
+    await _auth.sendPasswordResetEmail(email: email);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Password Reset"),
+          content: Text("Password reset link has been sent to your email."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  } catch (e) {
+    print("Error sending password reset email: $e");
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Error"),
+          content: Text("Failed to send password reset email."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+Future<void> _updatePasswordInFirestore(String email) async {
+  try {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('users').where('email', isEqualTo: email).get();
+    
+    if (querySnapshot.docs.isNotEmpty) {
+      DocumentSnapshot userDoc = querySnapshot.docs.first;
+      await userDoc.reference.update({
+        'password': password, 
+      });
+      print('Password updated in Firestore for user: $email');
+    } else {
+      print('No user found with email: $email');
+    }
+  } catch (e) {
+    print('Error updating password in Firestore: $e');
+  }
+}
+
 
   Widget loginButton(String title, bool isSignUp) {
     return Padding(
@@ -138,10 +198,10 @@ class _LoginContentState extends State<LoginContent> with TickerProviderStateMix
   Widget forgotPassword() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 110),
-      child: TextButton(
-        onPressed: () {},
-        child: const Text(
-          'Forgot Password?',
+   child: TextButton(
+      onPressed: resetPassword,
+      child: const Text(
+        'Forgot Password?',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
