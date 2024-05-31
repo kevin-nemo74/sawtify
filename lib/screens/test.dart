@@ -123,8 +123,8 @@ class _TestPageState extends State<TestPage>
             _isRecordingList[index] = true;
             _isRecording = true;
           });
-
-          _stopRecordingTimer = Timer(Duration(seconds: 2), () {
+          //TODO: adjust the recording time
+          _stopRecordingTimer = Timer(Duration(seconds: 5), () {
             _stopRecording(index);
           });
         } catch (e) {
@@ -161,7 +161,8 @@ class _TestPageState extends State<TestPage>
         File targetAudio = File(targetAudioPath);
         double distance = await _compareAudio(recordedFile, targetAudio);
         setState(() {
-          _comparisonResults[index] = distance < 0.5;
+          //TODO: adjust the threshold
+          _comparisonResults[index] = distance < 0.7;
         });
       } else {
         throw Exception('Recorded file does not exist');

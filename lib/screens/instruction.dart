@@ -91,6 +91,12 @@ class _InstructionState extends State<Instruction>
                   'If you need to stop the task for any reason, you won\'t be able to resume it. However, you can try the task again after 3 days.',
               emoji: '⏰',
             ),
+            AnimatedInstructionCard(
+              title: 'Single Attempt Only',
+              description:
+                  'Please note that you can only hear and record each word once and only once. There is no going back or repeating.',
+              emoji: '🔄',
+            ),
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
